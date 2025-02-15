@@ -30,18 +30,24 @@ jobs:
     - name: Send Email Notification via SendGrid
       if: failure()
       run: |
-        curl --request POST \
-          --url https://api.sendgrid.com/v3/mail/send \
-          --header "Authorization: Bearer ${{ secrets.SENDGRID_API_KEY }}" \
-          --header "Content-Type: application/json" \
-          --data '{
-            "personalizations": [{
-              "to": [{"email": "${{ secrets.SENDGRID_TO_EMAIL }}"}],
-              "subject": "❌ PR Closed Due to Invalid Commits"
-            }],
-            "from": {"email": "${{ secrets.SENDGRID_FROM_EMAIL }}"},
-            "content": [{
-              "type": "text/plain",
-              "value": "A pull request was closed due to invalid commit messages. Please update your commits to follow the Conventional Commits format and try again."
-            }]
-          }'
+        pip install sendgrid
+        python - <<EOF
+        import os
+        from sendgrid import SendGridAPIClient
+        from sendgrid.helpers.mail import Mail
+        
+        sendgrid_api_key = os.environ.get('SENDGRID_API_KEY')
+        
+        message = Mail(
+            from_email='ztao8@dons.usfca.edu',
+            to_emails='ztao8@dons.usfca.edu',
+            subject='Nightly Build Failed',
+            html_content='The nightly build has failed. Please check the logs for more details.'
+        )
+        try:
+            sg = SendGridAPIClient(sendgrid_api_key)
+            response = sg.send(message)
+            print("Notification sent. Status code:", response.status_code)
+        except Exception as e:
+            print("Failed to send notification:", e)
+        EOF
