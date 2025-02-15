@@ -44,7 +44,7 @@ DOMAIN=http://localhost:8000
 **3. Set up environment variables by copying the example configuration**
 ```bash
     cp .env.example .env
-    ```
+```
 ---
 
 ## 🚀 Run with Docker
