@@ -69,7 +69,7 @@ jobs:
         run: docker info
 
       - name: Build Docker image
-        run: docker build -t ghcr.io/ztao8/fastapi-beyond-crud:latest .
+        run: docker build -t ghcr.io/ztao-8/fastapi-beyond-crud:latest .
 
       - name: Push Docker image
-        run: docker push ghcr.io/ztao8/fastapi-beyond-crud:latest
+        run: docker push ghcr.io/ztao-8/fastapi-beyond-crud:latest
