@@ -15,48 +15,43 @@ jobs:
     - name: Validate Conventional Commits
       uses: amannn/action-semantic-pull-request@v4
       with:
-        validateAllCommits: true
+        validateSingleCommit: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Comment on PR before closing
       if: failure()
+
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         gh pr comment ${{ github.event.pull_request.number }} --body "❌ This PR is being closed because the commit messages do not follow Conventional Commits. Please update your commits and try again."
 
     - name: Close PR if invalid commits
       if: failure()
+
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        gh pr close ${{ github.event.pull_request.number }} -b "Closing PR due to invalid commit messages. Please use Conventional Commits."
+        gh pr close ${{ github.event.pull_request.number }} --comment "Closing PR due to invalid commit messages. Please use Conventional Commits."
 
     - name: Send Email Notification via SendGrid
       if: failure()
       run: |
-        pip install sendgrid
-        python - <<EOF
-        import os
-        from sendgrid import SendGridAPIClient
-        from sendgrid.helpers.mail import Mail
 
-        sendgrid_api_key = os.getenv('SENDGRID_API_KEY')
-
-        if not sendgrid_api_key:
-            print("Error: SENDGRID_API_KEY is not set.")
-            exit(1)
-
-        message = Mail(
-            from_email='ztao8@dons.usfca.edu',
-            to_emails='ztao8@dons.usfca.edu',
-            subject='Nightly Build Failed',
-            html_content='The nightly build has failed. Please check the logs for more details.'
-        )
-        try:
-            sg = SendGridAPIClient(sendgrid_api_key)
-            response = sg.send(message)
-            print("Notification sent. Status code:", response.status_code)
-        except Exception as e:
-            print(f"Failed to send notification: {e}")
-            print("Check if your SendGrid API key is correct and has the correct permissions.")
-            exit(1)
-        EOF
-      env:
-        SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
+        curl --request POST \
+          --url https://api.sendgrid.com/v3/mail/send \
+          --header "Authorization: Bearer ${{ secrets.SENDGRID_API_KEY }}" \
+          --header "Content-Type: application/json" \
+          --data '{
+            "personalizations": [{
+              "to": [{"email": "ztao8@dons.usfca.edu"}],
+              "subject": "❌ PR Closed Due to Invalid Commits"
+            }],
+            "from": {"email": "ztao8@dons.usfca.edu"},
+            "content": [{
+              "type": "text/plain",
+              "value": "A pull request was closed due to invalid commit messages. Please update your commits to follow the Conventional Commits format and try again."
+            }]
+          }'
 
