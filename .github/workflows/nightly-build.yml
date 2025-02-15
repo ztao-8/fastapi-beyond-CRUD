@@ -1,0 +1,73 @@
+name: Nightly Build
+
+on:
+  schedule:
+    - cron: "*/1 * * * *"
+#    - cron: "0 0 * * *"
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m venv env
+          source env/bin/activate
+          pip install -r requirements.txt
+
+      - name: Run tests
+        run: |
+          source env/bin/activate
+          pytest
+        continue-on-error: true
+
+      - name: Notify on failure
+        if: ${{ failure() }}
+        run: |
+          pip install sendgrid
+          python - <<EOF
+          import os
+          from sendgrid import SendGridAPIClient
+          from sendgrid.helpers.mail import Mail
+
+          sendgrid_api_key = os.environ.get('SENDGRID_API_KEY')
+
+          message = Mail(
+              from_email='ztao8@dons.usfca.edu',
+              to_emails='ztao8@dons.usfca.edu',
+              subject='Nightly Build Failed',
+              html_content='The nightly build has failed. Please check the logs for more details.'
+          )
+          try:
+              sg = SendGridAPIClient(sendgrid_api_key)
+              response = sg.send(message)
+              print("Notification sent. Status code:", response.status_code)
+          except Exception as e:
+              print("Failed to send notification:", e)
+          EOF
+
+  push-image:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Log in to registry
+        run: echo "${{ secrets.CONTAINER_REGISTRY_PASSWORD }}" | docker login ${{ secrets.CONTAINER_REGISTRY_URL }} -u ${{ secrets.CONTAINER_REGISTRY_USERNAME }} --password-stdin
+
+      - name: Build Docker image
+        run: docker build -t ${{ secrets.CONTAINER_REGISTRY_URL }}/your-image-name:latest .
+
+      - name: Push Docker image
+        run: docker push ${{ secrets.CONTAINER_REGISTRY_URL }}/your-image-name:latest
