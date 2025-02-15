@@ -72,9 +72,12 @@ docker compose run web pytest
 This project uses **GitHub Actions** for continuous integration and deployment.
 
 **🔹 Features:**
+- **Conventional Commits: Check commits style once a PR is open**
+- **Automatic Close PR: If commits don't satisfy standard style PR will close**
 - **Nightly Build:** Scheduled CI/CD every night (`cron: "0 0 * * *"`)
-- **Run Tests on PRs**
+- **Run Tests**
 - **Automatic Docker Image Build & Push to GitHub Container Registry (GHCR)**
+- **Send Email Notification When test failed or commits are not conventional**
 
 ---
 
