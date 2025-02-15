@@ -41,12 +41,10 @@ MAIL_FROM_NAME=FastAPI App
 DOMAIN=http://localhost:8000
 ```
 
-**3. Set up environment variables by copying the example configuration**  
-```
+**3. Set up environment variables by copying the example configuration**
 ```bash
     cp .env.example .env
     ```
-
 ---
 
 ## 🚀 Run with Docker
