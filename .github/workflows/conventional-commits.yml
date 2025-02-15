@@ -17,6 +17,7 @@ jobs:
       with:
         validateAllCommits: true
 
+
     - name: Comment on PR before closing
       if: failure()
 
