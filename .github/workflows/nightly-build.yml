@@ -2,9 +2,9 @@ name: Nightly Build
 
 on:
   schedule:
-#    - cron: "*/5 * * * *"
-    - cron: "0 0 * * *"
-  workflow_dispatch:
+    - cron: "*/5 * * * *"
+#    - cron: "0 0 * * *"
+#  workflow_dispatch:
 
 jobs:
   build-and-test:
@@ -29,6 +29,7 @@ jobs:
         run: |
           source env/bin/activate
           pip install pytest
+          pytest
         continue-on-error: true
 
       - name: Notify on failure
