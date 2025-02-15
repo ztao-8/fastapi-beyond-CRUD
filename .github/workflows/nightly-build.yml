@@ -31,29 +31,23 @@ jobs:
         continue-on-error: true
 
       - name: Notify on failure
-        if: ${{ failure() }}
+        if: failure()
         run: |
-          pip install sendgrid
-          python - <<EOF
-          import os
-          from sendgrid import SendGridAPIClient
-          from sendgrid.helpers.mail import Mail
-
-          sendgrid_api_key = os.environ.get('SENDGRID_API_KEY')
-
-          message = Mail(
-              from_email='ztao8@dons.usfca.edu',
-              to_emails='ztao8@dons.usfca.edu',
-              subject='Nightly Build Failed',
-              html_content='The nightly build has failed. Please check the logs for more details.'
-          )
-          try:
-              sg = SendGridAPIClient(sendgrid_api_key)
-              response = sg.send(message)
-              print("Notification sent. Status code:", response.status_code)
-          except Exception as e:
-              print("Failed to send notification:", e)
-          EOF
+          curl --request POST \
+            --url https://api.sendgrid.com/v3/mail/send \
+            --header "Authorization: Bearer ${{ secrets.SENDGRID_API_KEY }}" \
+            --header "Content-Type: application/json" \
+            --data '{
+              "personalizations": [{
+                "to": [{"email": "ztao8@dons.usfca.edu"}],
+                "subject": "Failed to Nightly Build"
+              }],
+              "from": {"email": "ztao8@dons.usfca.edu"},
+              "content": [{
+                "type": "text/plain",
+                "value": "Nightly Build failed. Please check your code again."
+              }]
+            }'
 
   push-image:
     needs: build-and-test
