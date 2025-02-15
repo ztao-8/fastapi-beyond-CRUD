@@ -17,7 +17,31 @@ jobs:
       with:
         validateAllCommits: true
 
+    - name: Comment on PR before closing
+      if: failure()
+      run: |
+        gh pr comment ${{ github.event.pull_request.number }} --body "❌ This PR is being closed because the commit messages do not follow Conventional Commits. Please update your commits and try again."
+
     - name: Close PR if invalid commits
       if: failure()
       run: |
         gh pr close ${{ github.event.pull_request.number }} -b "Closing PR due to invalid commit messages. Please use Conventional Commits."
+
+    - name: Send Email Notification via SendGrid
+      if: failure()
+      run: |
+        curl --request POST \
+          --url https://api.sendgrid.com/v3/mail/send \
+          --header "Authorization: Bearer ${{ secrets.SENDGRID_API_KEY }}" \
+          --header "Content-Type: application/json" \
+          --data '{
+            "personalizations": [{
+              "to": [{"email": "${{ secrets.SENDGRID_TO_EMAIL }}"}],
+              "subject": "❌ PR Closed Due to Invalid Commits"
+            }],
+            "from": {"email": "${{ secrets.SENDGRID_FROM_EMAIL }}"},
+            "content": [{
+              "type": "text/plain",
+              "value": "A pull request was closed due to invalid commit messages. Please update your commits to follow the Conventional Commits format and try again."
+            }]
+          }'
