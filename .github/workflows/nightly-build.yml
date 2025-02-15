@@ -63,7 +63,8 @@ jobs:
       - name: Log in to registry
         run: |
           echo "${{ secrets.CONTAINER_REGISTRY_PASSWORD }}" | docker login ${{ secrets.CONTAINER_REGISTRY_URL }} -u "${{ secrets.CONTAINER_REGISTRY_USERNAME }}" --password-stdin
-
+      - name: Verify Docker Login
+        run: docker info
       - name: Verify Docker Login
         run: docker info
 
