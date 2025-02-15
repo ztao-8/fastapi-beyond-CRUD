@@ -35,9 +35,13 @@ jobs:
         import os
         from sendgrid import SendGridAPIClient
         from sendgrid.helpers.mail import Mail
-        
-        sendgrid_api_key = os.environ.get('SENDGRID_API_KEY')
-        
+
+        sendgrid_api_key = os.getenv('SENDGRID_API_KEY')
+
+        if not sendgrid_api_key:
+            print("Error: SENDGRID_API_KEY is not set.")
+            exit(1)
+
         message = Mail(
             from_email='ztao8@dons.usfca.edu',
             to_emails='ztao8@dons.usfca.edu',
@@ -49,5 +53,10 @@ jobs:
             response = sg.send(message)
             print("Notification sent. Status code:", response.status_code)
         except Exception as e:
-            print("Failed to send notification:", e)
+            print(f"Failed to send notification: {e}")
+            print("Check if your SendGrid API key is correct and has the correct permissions.")
+            exit(1)
         EOF
+      env:
+        SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
+
