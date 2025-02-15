@@ -1,0 +1,51 @@
+name: Validate Conventional Commits
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+
+jobs:
+  check-commits:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Validate Conventional Commits
+      uses: amannn/action-semantic-pull-request@v4
+      with:
+        validateAllCommits: true
+
+    - name: Comment on PR before closing
+      if: failure()
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        gh pr comment ${{ github.event.pull_request.number }} --body "❌ This PR is being closed because the commit messages do not follow Conventional Commits. Please update your commits and try again."
+
+    - name: Close PR if invalid commits
+      if: failure()
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        gh pr close ${{ github.event.pull_request.number }} --comment "Closing PR due to invalid commit messages. Please use Conventional Commits."
+
+    - name: Send Email Notification via SendGrid
+      if: failure()
+      run: |
+        curl --request POST \
+          --url https://api.sendgrid.com/v3/mail/send \
+          --header "Authorization: Bearer ${{ secrets.SENDGRID_API_KEY }}" \
+          --header "Content-Type: application/json" \
+          --data '{
+            "personalizations": [{
+              "to": [{"email": "ztao8@dons.usfca.edu"}],
+              "subject": "❌ PR Closed Due to Invalid Commits"
+            }],
+            "from": {"email": "ztao8@dons.usfca.edu"},
+            "content": [{
+              "type": "text/plain",
+              "value": "A pull request was closed due to invalid commit messages. Please update your commits to follow the Conventional Commits format and try again."
+            }]
+          }'
