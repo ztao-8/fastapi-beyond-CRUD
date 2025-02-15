@@ -19,6 +19,7 @@ jobs:
 
     - name: Comment on PR before closing
       if: failure()
+
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
@@ -26,6 +27,7 @@ jobs:
 
     - name: Close PR if invalid commits
       if: failure()
+
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
@@ -34,6 +36,7 @@ jobs:
     - name: Send Email Notification via SendGrid
       if: failure()
       run: |
+
         curl --request POST \
           --url https://api.sendgrid.com/v3/mail/send \
           --header "Authorization: Bearer ${{ secrets.SENDGRID_API_KEY }}" \
@@ -49,3 +52,4 @@ jobs:
               "value": "A pull request was closed due to invalid commit messages. Please update your commits to follow the Conventional Commits format and try again."
             }]
           }'
+
