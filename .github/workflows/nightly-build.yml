@@ -29,7 +29,7 @@ jobs:
         run: |
           source env/bin/activate
           pip install pytest
-          pytest
+          pytest src/tests/
         continue-on-error: true
 
       - name: Notify on failure
