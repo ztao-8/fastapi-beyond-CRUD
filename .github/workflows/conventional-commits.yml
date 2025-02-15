@@ -1,0 +1,23 @@
+name: Validate Conventional Commits
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+
+jobs:
+  check-commits:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Validate Conventional Commits
+      uses: amannn/action-semantic-pull-request@v4
+      with:
+        validateAllCommits: true
+
+    - name: Close PR if invalid commits
+      if: failure()
+      run: |
+        gh pr close ${{ github.event.pull_request.number }} -b "Closing PR due to invalid commit messages. Please use Conventional Commits."
