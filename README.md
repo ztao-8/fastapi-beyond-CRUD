@@ -14,19 +14,8 @@ git clone https://github.com/ztao-8/fastapi-beyond-CRUD.git
 cd fastapi-beyond-CRUD
 ```
 
-**2. Set Up a Virtual Environment**
-```sh
-python -m venv env
-source env/bin/activate  # On Windows: env\Scripts\activate
-```
-
-**3. Install Dependencies**
-```sh
-pip install -r requirements.txt
-```
-
-**4. Set Up Environment Variables**  
-Create a `.env` file in the root directory:
+**2. Update Environment Variables**  
+Update a`.env.example` file in the root directory with your own information:
 ```ini
 # Database configuration
 DATABASE_URL=postgresql+asyncpg://postgres:testpass@db:5432/bookly
@@ -52,11 +41,11 @@ MAIL_FROM_NAME=FastAPI App
 DOMAIN=http://localhost:8000
 ```
 
-**5. Start the Application**
-```sh
-uvicorn src.main:app --reload
+**3. Set up environment variables by copying the example configuration**  
 ```
-✅ The API will be available at: **`http://localhost:8000`**
+```bash
+    cp .env.example .env
+    ```
 
 ---
 
@@ -64,33 +53,18 @@ uvicorn src.main:app --reload
 
 **1. Build & Run the Containers**
 ```sh
-docker-compose up --build
+docker compose up --build
 ```
 
 **2. Access the API**
 - **API Docs:** `http://localhost:8000/docs`
-- **Redoc:** `http://localhost:8000/redoc`
 
----
-
-## 📜 API Documentation
-
-Once the server is running, visit:  
-🔹 **Swagger UI:** [`http://localhost:8000/docs`](http://localhost:8000/docs)  
-🔹 **ReDoc UI:** [`http://localhost:8000/redoc`](http://localhost:8000/redoc)
-
----
 
 ## 🧪 Running Tests
 
-**1. Run Tests Locally**
-```sh
-pytest
-```
-
 **2. Run Tests Inside Docker**
 ```sh
-docker-compose run web pytest
+docker compose run web pytest
 ```
 
 ---
@@ -100,15 +74,9 @@ docker-compose run web pytest
 This project uses **GitHub Actions** for continuous integration and deployment.
 
 **🔹 Features:**
-- **Nightly Build:** Scheduled CI/CD every 5 minutes (`cron: "*/5 * * * *"`)
+- **Nightly Build:** Scheduled CI/CD every night (`cron: "0 0 * * *"`)
 - **Run Tests on PRs**
 - **Automatic Docker Image Build & Push to GitHub Container Registry (GHCR)**
-
-**🔹 Manually Trigger CI/CD**  
-If you want to manually trigger the workflow:
-1. Go to **GitHub Actions**
-2. Select **Nightly Build**
-3. Click **"Run workflow"**
 
 ---
 
@@ -136,30 +104,19 @@ docker push ghcr.io/ztao-8/fastapi-beyond-crud:latest
 
 ---
 
-## 🛠 Contributing
+## 🛠 Sending Email if test fail/not conventional commits
 
-Want to contribute? Follow these steps:
+How to send an email notification? Follow these steps:
 
-1. **Fork the repository**
-2. **Clone your fork**
-   ```sh
-   git clone https://github.com/your-username/fastapi-beyond-CRUD.git
-   ```
-3. **Create a feature branch**
-   ```sh
-   git checkout -b feature-name
-   ```
-4. **Make changes and commit**
-   ```sh
-   git add .
-   git commit -m "feat: Added new feature"
-   ```
-5. **Push to GitHub**
-   ```sh
-   git push origin feature-name
-   ```
-6. **Open a Pull Request!**
-
+1. **SendGrid Account:**
+    Sign up for a free SendGrid account at sendgrid.com.
+2. **API Key**
+Once signed up, generate an API key by going to the Settings > API Keys section of the SendGrid dashboard. Make sure to copy this key and store it securely. You’ll need it later.
+3. **Verified Sender Email:**
+SendGrid requires a verified sender email. This is typically the email you used to sign up for the SendGrid account, or any email address you’ve verified in the Sender Authentication section of the dashboard.
+4. **Update your information**
+Go to your git repo, open Settings > Secrets and variables > Actions, update "SENDGRID_API_KEY" with your onw key.
+Also, Go to workflow files, update "from email" and "to email" with your emails.
 ---
 
 ## 📄 License
@@ -168,8 +125,3 @@ This project is licensed under the **MIT License**.
 
 ---
 
-## 🎯 Author
-
-👤 **Zoe Tao**  
-🔗 **GitHub:** [ztao-8](https://github.com/ztao-8)  
-📧 **Email:** `ztao8@dons.usfca.edu`
