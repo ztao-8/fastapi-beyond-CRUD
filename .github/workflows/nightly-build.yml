@@ -30,9 +30,7 @@ jobs:
 
       - name: Export environment variables
         run: |
-          set -o allexport
-          source .env
-          set +o allexport
+          export $(grep -v '^#' .env | xargs)
 
       - name: Run tests
         run: |
