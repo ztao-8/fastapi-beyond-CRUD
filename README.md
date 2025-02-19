@@ -65,6 +65,7 @@ docker compose up --build
 docker compose run web pytest
 ```
 
+
 ---
 
 ## ⚡ GitHub Actions & CI/CD
