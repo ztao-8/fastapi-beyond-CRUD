@@ -67,7 +67,6 @@ docker compose run web pytest
 
 
 ---
-
 ## ⚡ GitHub Actions & CI/CD
 
 This project uses **GitHub Actions** for continuous integration and deployment.
